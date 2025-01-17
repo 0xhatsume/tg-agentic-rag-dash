@@ -16,6 +16,7 @@
   "dependencies": {
     "@vercel/node": "^3.2.24",
     "dotenv-cli": "^7.4.2",
+    "@telegraf/types": "7.1.0",
     "telegraf": "^4.16.3"
   },
   "devDependencies": {

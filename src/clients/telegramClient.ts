@@ -20,7 +20,7 @@ export class TelegramClient {
     public async start(): Promise<void> {
         try
         {
-            await this.initBot();
+            //await this.initBot();
             this.setupMessageHandlers();
         }
         catch(error)

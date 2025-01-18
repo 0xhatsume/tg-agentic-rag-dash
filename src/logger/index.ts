@@ -11,15 +11,27 @@ class TgAgenticRagLogger {
     }
 
     public logError(...args: unknown[]): void {
-        this.error(args.join(' '));
+        if (process.env.NODE_ENV === 'development') {
+            this.error(args.join(' '));
+        } else {
+            console.error('❌', args.join(' '));
+        }
     }
 
     public logInfo(...args: unknown[]): void {
-        this.info(args.join(' '));
+        if (process.env.NODE_ENV === 'development') {
+            this.info(args.join(' '));
+        } else {
+            console.log('ℹ️', args.join(' '));
+        }
     }
 
     public logSuccess(...args: unknown[]): void {
-        this.success(args.join(' '));
+        if (process.env.NODE_ENV === 'development') {
+            this.success(args.join(' '));
+        } else {
+            console.log('✅', args.join(' '));
+        }
     }
 }
 

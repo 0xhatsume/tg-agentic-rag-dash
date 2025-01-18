@@ -20,7 +20,7 @@ export class TelegramClient {
     public async start(): Promise<void> {
         try
         {
-            //await this.initBot();
+            await this.initBot();
             this.setupMessageHandlers();
         }
         catch(error)
@@ -31,7 +31,7 @@ export class TelegramClient {
     }
 
     private async initBot(): Promise<void> {
-        await this.bot.launch({ dropPendingUpdates: true });
+        //await this.bot.launch({ dropPendingUpdates: true }); only for dev mode
         tgAgenticRagLogger.logInfo("✨ Telegram bot successfully launched and is running!");
 
         const botInfo = await this.bot.telegram.getMe();

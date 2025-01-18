@@ -12,7 +12,7 @@ const development = async (bot: Telegraf<Context<Update>>) => {
   await bot.telegram.deleteWebhook();
   debug(`${botInfo} starting polling`);
 
-  await bot.launch();
+  await bot.launch({ dropPendingUpdates: true });
 
   process.once('SIGINT', () => bot.stop('SIGINT'));
   process.once('SIGTERM', () => bot.stop('SIGTERM'));

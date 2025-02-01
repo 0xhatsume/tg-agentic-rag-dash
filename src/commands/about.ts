@@ -1,13 +1,9 @@
 import { Context } from 'telegraf';
-import createDebug from 'debug';
-
-import { author, name, version } from '../../package.json';
-
-const debug = createDebug('bot:about_command');
+import { tgAgenticRagLogger } from '../logger';
 
 const about = () => async (ctx: Context) => {
-  const message = `*${name} ${version}*\n${author}`;
-  debug(`Triggered "about" command with message \n${message}`);
+  const message = `This is a test Tg Agentic RAG bot`;
+  tgAgenticRagLogger.info(`[about_command] Triggered with message \n${message}`);
   await ctx.replyWithMarkdownV2(message, { parse_mode: 'Markdown' });
 };
 

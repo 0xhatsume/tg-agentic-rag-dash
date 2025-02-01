@@ -1,12 +1,13 @@
 import createDebug from 'debug';
 
 class TgAgenticRagLogger {
-    public debug = createDebug('bot:dev');
-    public error = createDebug('bot:error');
-    public info = createDebug('bot:info');
-    public success = createDebug('bot:success');
+    private debug = createDebug('bot:dev');
+    private error = createDebug('bot:error');
+    private info = createDebug('bot:info');
+    private success = createDebug('bot:success');
+    private warn = createDebug('bot:warn');
 
-    public log(...args: unknown[]): void {
+    public logDebug(...args: unknown[]): void {
         this.debug(args.join(' '));
     }
 
@@ -31,6 +32,14 @@ class TgAgenticRagLogger {
             this.success(args.join(' '));
         } else {
             console.log('✅', args.join(' '));
+        }
+    }
+
+    public logWarn(...args: unknown[]): void {
+        if (process.env.NODE_ENV === 'development') {
+            this.warn(args.join(' '));
+        } else {
+            console.warn('⚠️', args.join(' '));
         }
     }
 }

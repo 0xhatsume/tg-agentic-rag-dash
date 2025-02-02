@@ -9,7 +9,7 @@ import { CacheManager, DbCacheAdapter } from './core/cache';
 import { SupabaseDatabaseAdapter } from './databases/adapter-supabase';
 import { stringToUuid } from './utils';
 
-const BOT_TOKEN = process.env.BOT_TOKEN || '';
+const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '';
 const ENVIRONMENT = process.env.NODE_ENV || '';
 
 //prod mode (Vercel)
@@ -42,3 +42,15 @@ export const startVercel = async (req: VercelRequest, res: VercelResponse) => {
   }
   
 };
+
+//dev mode
+if (ENVIRONMENT !== 'production') {
+  // Create mock request and response objects
+  const mockReq = {} as VercelRequest;
+  const mockRes = {
+    status: (code: number) => ({ json: (data: any) => {} }),
+    json: (data: any) => {},
+  } as VercelResponse;
+  
+  startVercel(mockReq, mockRes);
+}

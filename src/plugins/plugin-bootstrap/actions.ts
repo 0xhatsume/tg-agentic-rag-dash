@@ -1,5 +1,9 @@
 import { Action, IAgentRuntime, Memory, Content, ActionExample, HandlerCallback, State, ModelClass } from "../../core/types";
 import { messageHandlerTemplate, shouldContinueTemplate } from "../../core/templatesAndParsings";
+import { composeContext } from "../../core/composeContext";
+import { generateTrueOrFalse } from "../../core/generations";
+import { generateMessageResponse } from "../../core/generations";
+import { tgAgenticRagLogger } from "../../logger";
 
 const maxContinuesInARow = 3;
 
@@ -73,7 +77,7 @@ export const continueAction: Action = {
 
         const shouldContinue = await _shouldContinue(state);
         if (!shouldContinue) {
-            elizaLogger.log("Not elaborating, returning");
+            tgAgenticRagLogger.logInfo("Not elaborating, returning");
             return;
         }
 

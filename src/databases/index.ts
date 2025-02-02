@@ -511,7 +511,7 @@ export abstract class DatabaseAdapter<DB = any> implements IDatabaseAdapter {
         try {
             return await this.circuitBreaker.execute(operation);
         } catch (error) {
-            elizaLogger.error(`Circuit breaker error in ${context}:`, {
+            tgAgenticRagLogger.logError(`Circuit breaker error in ${context}:`, {
                 error: error instanceof Error ? error.message : String(error),
                 state: this.circuitBreaker.getState(),
             });

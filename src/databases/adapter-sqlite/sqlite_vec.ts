@@ -1,15 +1,15 @@
 import * as sqliteVec from "sqlite-vec";
 import { Database } from "better-sqlite3";
-import { elizaLogger } from "@elizaos/core";
+import { tgAgenticRagLogger } from "../../logger";
 
 // Loads the sqlite-vec extensions into the provided SQLite database
 export function loadVecExtensions(db: Database): void {
     try {
         // Load sqlite-vec extensions
         sqliteVec.load(db);
-        elizaLogger.log("sqlite-vec extensions loaded successfully.");
+        tgAgenticRagLogger.logInfo("sqlite-vec extensions loaded successfully.");
     } catch (error) {
-        elizaLogger.error("Failed to load sqlite-vec extensions:", error);
+        tgAgenticRagLogger.logError("Failed to load sqlite-vec extensions:", error);
         throw error;
     }
 }

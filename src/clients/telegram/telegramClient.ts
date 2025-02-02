@@ -16,6 +16,7 @@ export class TelegramClient {
     private messageManager: MessageManager;
 
     constructor(runtime: IAgentRuntime, botToken:string) {
+        tgAgenticRagLogger.logInfo("Bot Token:", botToken);
         this.bot = new Telegraf(botToken);
         this.runtime = runtime;
         this.messageManager = new MessageManager(this.bot, this.runtime);
@@ -24,8 +25,17 @@ export class TelegramClient {
     public async start(): Promise<void> {
         try
         {
+            tgAgenticRagLogger.logInfo("Starting Telegram bot...");
             await this.initBot();
-            this.setupMessageHandlers();
+            await this.setupMessageHandlers();
+            process.once('SIGINT', () => {
+                tgAgenticRagLogger.logInfo("SIGINT received, stopping bot...");
+                return this.bot.stop('SIGINT');
+            });
+            process.once('SIGTERM', () => {
+                tgAgenticRagLogger.logInfo("SIGTERM received, stopping bot...");
+                return this.bot.stop('SIGTERM');
+            });
         }
         catch(error)
         {
@@ -35,19 +45,34 @@ export class TelegramClient {
     }
 
     private async initBot(): Promise<void> {
+        tgAgenticRagLogger.logInfo("Initializing Telegram bot...");
+
         if (ENVIRONMENT !== 'production') {
-            await this.bot.launch({ dropPendingUpdates: true });
+            try {
+                // Stop any existing webhooks
+                tgAgenticRagLogger.logInfo("Bot runs in development mode");
+                tgAgenticRagLogger.logInfo("Deleting webhook...");
+                await this.bot.telegram.deleteWebhook({ drop_pending_updates: true });
+                tgAgenticRagLogger.logInfo("Launching bot...");
+                this.bot.launch({ dropPendingUpdates: true });
+                tgAgenticRagLogger.logSuccess("Bot launched in development mode.");
+                
+            } catch (error) {
+                tgAgenticRagLogger.logError("Failed to launch bot, retrying...");
+                // Add a small delay before retrying
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                this.bot.launch({ dropPendingUpdates: true });
+            }
         }
-        tgAgenticRagLogger.logInfo("✨ Telegram bot successfully launched and is running!");
 
         const botInfo = await this.bot.telegram.getMe();
         this.bot.botInfo = botInfo;
-        tgAgenticRagLogger.logSuccess(`Bot username: @${botInfo.username}`);
+        tgAgenticRagLogger.logSuccess(`Bot username: @${botInfo.username}`, 'Polling Started...');
 
         this.messageManager.bot = this.bot;
     }
 
-    private setupMessageHandlers(): void {
+    private async setupMessageHandlers(): Promise<void> {
         tgAgenticRagLogger.logInfo("Setting up message handlers...");
 
         this.bot.on(message("new_chat_members"), async (ctx) => {
@@ -75,10 +100,17 @@ export class TelegramClient {
         this.bot.command('about', about());
         
         this.bot.on('message', async (ctx) => {
-            if (ENVIRONMENT !== 'production'){
-                greeting()
-            }
-            else{
+            // if (ENVIRONMENT !== 'production'){
+            //     const messageId = ctx.message?.message_id;
+            //     const userName = `${ctx.message?.from.first_name} ${ctx.message?.from.last_name}`;
+
+            //     if (messageId) {
+            //         await ctx.reply(`Hello, ${userName}!`, {
+            //             reply_parameters: { message_id: messageId },
+            //           });
+            //     }
+            // }
+            // else{
                 try{
                     tgAgenticRagLogger.logInfo(`Received message in chat ${ctx.chat?.id} from user ${ctx.from?.username || 'unknown'}`);
 
@@ -108,7 +140,7 @@ export class TelegramClient {
                         }
                     }
                 }
-            }
+            //}
         });
 
         this.bot.on("photo", (ctx) => {
@@ -144,5 +176,7 @@ export class TelegramClient {
                     });
                 });
         });
+
+        tgAgenticRagLogger.logSuccess("Message handlers setup complete.");
     }
 }

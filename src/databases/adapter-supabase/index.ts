@@ -106,6 +106,7 @@ export class SupabaseDatabaseAdapter extends DatabaseAdapter {
 
     async init() {
         // noop
+        tgAgenticRagLogger.logDebug('initializing supabase adapter...');
     }
 
     async close() {
@@ -370,7 +371,7 @@ export class SupabaseDatabaseAdapter extends DatabaseAdapter {
             };
 
             // Use mapped table name or default to memories_{dimension}
-            const tableName = opts.query_table_name ? tableMap[opts.query_table_name] || opts.query_table_name : `memories_${config.dimensions}`;
+            const tableName = tableMap[opts.query_table_name] || opts.query_table_name || `memories_${config.dimensions}`;
 
             tgAgenticRagLogger.logDebug(`Using table: ${tableName} (original: ${opts.query_table_name})`);
 

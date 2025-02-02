@@ -10,6 +10,7 @@ import { SupabaseDatabaseAdapter } from './databases/adapter-supabase';
 import { stringToUuid } from './utils';
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '';
+const MODEL_TOKEN = process.env.OPENAI_API_KEY || process.env.ANTHROPIC_API_KEY || '';
 const ENVIRONMENT = process.env.NODE_ENV || '';
 
 //prod mode (Vercel)
@@ -24,15 +25,15 @@ export const startVercel = async (req: VercelRequest, res: VercelResponse) => {
 
   mainCharacter.id ??= stringToUuid(mainCharacter.name);
   const cache = new CacheManager(new DbCacheAdapter(db, mainCharacter.id));
-
+  
   const rt: AgentRuntime = await createAgent(
     mainCharacter,
     db,
     cache,
-    BOT_TOKEN);
+    MODEL_TOKEN);
   
   const tgClient = new TelegramClient(rt, BOT_TOKEN);
-  tgClient.start();
+  await tgClient.start();
   
   if (ENVIRONMENT === 'production') {
     await production(req, res, tgClient.bot);

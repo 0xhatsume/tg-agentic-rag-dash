@@ -18,12 +18,12 @@ export async function createAgent(
     token: string
 ): Promise<AgentRuntime> {
     tgAgenticRagLogger.logSuccess(
-        "Success",
-        "Creating runtime for character",
-        character.name
+        "Creating runtime for character:",
+        character.name, "..."
     );
 
     //nodePlugin ??= createNodePlugin();
+    //tgAgenticRagLogger.logInfo("Model Token:", token);
 
     return new AgentRuntime({
         databaseAdapter: db,

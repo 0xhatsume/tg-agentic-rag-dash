@@ -1,7 +1,8 @@
 export * from "./sqliteTables";
 export * from "./sqlite_vec";
 
-import { DatabaseAdapter } from "../index";
+import { Database } from "better-sqlite3";
+import { DatabaseAdapter } from "../adapter";
 import {
     IDatabaseCacheAdapter,
     Account,
@@ -13,9 +14,8 @@ import {
     type Relationship,
     type UUID,
 } from "../../core/types";
-import { Database } from "better-sqlite3";
 import { v4 } from "uuid";
-import { load } from "./sqlite_vec";
+import { loadVecExtensions } from "./sqlite_vec";
 import { sqliteTables } from "./sqliteTables";
 
 export class SqliteDatabaseAdapter
@@ -73,7 +73,7 @@ export class SqliteDatabaseAdapter
     constructor(db: Database) {
         super();
         this.db = db;
-        load(db);
+        loadVecExtensions(db);
     }
 
     async init() {

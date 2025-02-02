@@ -26,6 +26,13 @@ import {
 } from "./constants";
 import fs from "fs";
 
+interface ExtendedError {
+    name?: string;
+    message?: string;
+    stack?: string;
+    code?: string | number;
+    details?: any;
+}
 
 export type InterestChats = {
     [key: string]: {
@@ -698,7 +705,6 @@ export class MessageManager {
                 message: {
                     id: ctx.message.message_id,
                     text: 'text' in ctx.message ? ctx.message.text?.substring(0, 100) : undefined,
-                    type: ctx.message.type
                 }
             });
 
@@ -1045,17 +1051,17 @@ export class MessageManager {
             } catch (innerError) {
                 tgAgenticRagLogger.logError('Error in message processing:', {
                     error: {
-                        name: innerError?.name,
-                        message: innerError?.message,
-                        stack: innerError?.stack,
-                        code: innerError?.code,
-                        details: innerError?.details
+                        name: (innerError as ExtendedError)?.name,
+                        message: (innerError as ExtendedError)?.message,
+                        stack: (innerError as ExtendedError)?.stack,
+                        code: (innerError as ExtendedError)?.code,
+                        details: (innerError as ExtendedError)?.details
                     },
                     context: {
                         chatId: ctx.chat?.id,
                         messageId: ctx.message?.message_id,
                         from: ctx.from?.username,
-                        messageText: 'text' in ctx.message ? ctx.message.text : undefined
+                        messageText: ctx.message && 'text' in ctx.message ? ctx.message.text : undefined
                     }
                 });
                 throw innerError;
@@ -1064,17 +1070,17 @@ export class MessageManager {
         } catch (error) {
             tgAgenticRagLogger.logError('❌ Error handling message:', {
                 error: {
-                    name: error?.name,
-                    message: error?.message,
-                    stack: error?.stack,
-                    code: error?.code,
-                    details: error?.details
+                    name: (error as ExtendedError)?.name,
+                    message: (error as ExtendedError)?.message,
+                    stack: (error as ExtendedError)?.stack,
+                    code: (error as ExtendedError)?.code,
+                    details: (error as ExtendedError)?.details
                 },
                 context: {
                     chatId: ctx.chat?.id,
                     messageId: ctx.message?.message_id,
                     from: ctx.from?.username,
-                    messageText: 'text' in ctx?.message ? ctx.message.text : undefined
+                    messageText: ctx.message && 'text' in ctx.message ? ctx.message.text : undefined
                 }
             });
 

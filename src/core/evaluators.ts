@@ -1,5 +1,5 @@
 import { names, uniqueNamesGenerator } from "unique-names-generator";
-import { ActionExample, type Evaluator } from "./types.ts";
+import { ActionExample, type Evaluator } from "./types";
 import { stringArrayFooter } from "./templatesAndParsings";
 
 /**

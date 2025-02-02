@@ -1,6 +1,6 @@
-import { AgentRuntime } from "./runtime.ts";
-import { embed, getEmbeddingZeroVector } from "./embedding.ts";
-import { KnowledgeItem, UUID, type Memory } from "./types.ts";
+import { AgentRuntime } from "./runtime";
+import { embed, getEmbeddingZeroVector } from "./embedding";
+import { KnowledgeItem, UUID, type Memory } from "./types";
 import { stringToUuid } from "../utils/uuid";
 import { splitChunks } from "./generations";
 import {tgAgenticRagLogger} from "../logger";

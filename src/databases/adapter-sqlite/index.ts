@@ -1,5 +1,5 @@
-export * from "./sqliteTables.ts";
-export * from "./sqlite_vec.ts";
+export * from "./sqliteTables";
+export * from "./sqlite_vec";
 
 import { DatabaseAdapter } from "../index";
 import {
@@ -15,8 +15,8 @@ import {
 } from "../../core/types";
 import { Database } from "better-sqlite3";
 import { v4 } from "uuid";
-import { load } from "./sqlite_vec.ts";
-import { sqliteTables } from "./sqliteTables.ts";
+import { load } from "./sqlite_vec";
+import { sqliteTables } from "./sqliteTables";
 
 export class SqliteDatabaseAdapter
     extends DatabaseAdapter<Database>

@@ -28,14 +28,16 @@ export class TelegramClient {
             tgAgenticRagLogger.logInfo("Starting Telegram bot...");
             await this.initBot();
             await this.setupMessageHandlers();
-            process.once('SIGINT', () => {
-                tgAgenticRagLogger.logInfo("SIGINT received, stopping bot...");
-                return this.bot.stop('SIGINT');
-            });
-            process.once('SIGTERM', () => {
-                tgAgenticRagLogger.logInfo("SIGTERM received, stopping bot...");
-                return this.bot.stop('SIGTERM');
-            });
+
+
+            // process.once('SIGINT', () => {
+            //     tgAgenticRagLogger.logInfo("SIGINT received, stopping bot...");
+            //     return this.bot.stop('SIGINT');
+            // });
+            // process.once('SIGTERM', () => {
+            //     tgAgenticRagLogger.logInfo("SIGTERM received, stopping bot...");
+            //     return this.bot.stop('SIGTERM');
+            // });
         }
         catch(error)
         {

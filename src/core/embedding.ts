@@ -223,7 +223,7 @@ export async function embed(runtime: IAgentRuntime, input: string) {
     }
 
     // BGE - try local first if in Node
-    if (isNode) {
+    if (isNode && settings.USE_LOCAL_EMBEDDINGS?.toLowerCase() === "true") {
         try {
             return await getLocalEmbedding(input);
         } catch (error) {
@@ -235,6 +235,7 @@ export async function embed(runtime: IAgentRuntime, input: string) {
     }
 
     // Fallback to remote override
+    tgAgenticRagLogger.logSuccess("Using remote Embeddings override");
     return await getRemoteEmbedding(input, {
         model: config.model,
         endpoint:

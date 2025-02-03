@@ -1,5 +1,7 @@
-# Telegram Bot using Agentic RAG
+# Telegram Bot using Agentic RAG (But now with Dashboard)
 
-Cos I tried to cobble together a serverless TG bot running thru Eliza but seriously it is so messy that nothing really works. (Also it really is just wrapping alot around things and copy-pasta from python side of stuff)
+Following the experiment on [Telegram Bot using Agentic RAG](https://github.com/0xhatsume/agentic-tg-rag), 
+I now need a dashboard to iterate on settings and monitor more bots than one. Also there are other friends who want to co-use it. 
+So I have to have a control center of sorts.
+Here we try to use Supabase as backend as much as possible.
 
-So I need a more simple modular stack. No choice, I just have to stitch it up from ground again.

@@ -22,9 +22,11 @@ export default function TweetsPage() {
           <AuthButton />
         </div>
       </header>
-      <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm border border-secondary/20">
-        <p className="text-secondary">Twitter feed coming soon...</p>
-      </div>
+      <main className="max-w-7xl mx-auto">
+        <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm border border-secondary/20">
+          <p className="text-secondary">Twitter feed coming soon...</p>
+        </div>
+      </main>
     </div>
   );
 } 

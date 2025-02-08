@@ -22,9 +22,11 @@ export default function DiaryPage() {
           <AuthButton />
         </div>
       </header>
-      <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm border border-secondary/20">
-        <p className="text-secondary">Events diary coming soon...</p>
-      </div>
+      <main className="max-w-7xl mx-auto">
+        <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm border border-secondary/20">
+          <p className="text-secondary">Events diary coming soon...</p>
+        </div>
+      </main>
     </div>
   );
 } 

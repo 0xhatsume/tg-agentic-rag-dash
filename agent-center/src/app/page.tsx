@@ -3,7 +3,7 @@ import { AuthButton } from "@/components/auth-button";
 import { NewsSection } from "@/components/news-section";
 import { UserSettings } from "@/components/user-settings";
 import Link from 'next/link';
-import { LineChart, Brain, MessageSquareMore, Twitter, BookOpen } from 'lucide-react';
+import { LineChart, Brain, MessageSquareMore, Twitter, BookOpen, Newspaper } from 'lucide-react';
 import { NavLinks } from '@/components/nav-links';
 
 export default function Home() {
@@ -57,6 +57,14 @@ export default function Home() {
               <h2 className="text-lg font-semibold text-primary">Diary</h2>
             </div>
             <p className="mt-2 text-secondary">Track important crypto events</p>
+          </Link>
+
+          <Link href="/news" className="bg-white p-6 rounded-lg shadow-sm border border-secondary/20 hover:border-secondary/40 transition-colors">
+            <div className="flex items-center space-x-3">
+              <Newspaper className="w-6 h-6 text-primary" />
+              <h2 className="text-lg font-semibold text-primary">News</h2>
+            </div>
+            <p className="mt-2 text-secondary">Your personalized news feed</p>
           </Link>
         </div>
 

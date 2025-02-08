@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, LineChart, Brain, MessageSquareMore, Twitter } from 'lucide-react';
+import { Home, LineChart, Brain, MessageSquareMore, Twitter, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function NavLinks() {
@@ -14,6 +14,7 @@ export function NavLinks() {
     { href: '/analytics', label: 'Analytics', icon: Brain },
     { href: '/agents', label: 'Agents', icon: MessageSquareMore },
     { href: '/tweets', label: 'Tweets', icon: Twitter },
+    { href: '/diary', label: 'Diary', icon: BookOpen },
   ];
 
   return (

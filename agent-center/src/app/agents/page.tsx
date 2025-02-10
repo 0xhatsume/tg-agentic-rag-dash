@@ -66,6 +66,10 @@ export default function AgentsPage() {
   const [newAdjective, setNewAdjective] = useState('');
   const [newStyleItem, setNewStyleItem] = useState({ category: 'all', text: '' });
   const [newPostExample, setNewPostExample] = useState('');
+  const [newMessageExample, setNewMessageExample] = useState({
+    userMessage: { user: '{{user1}}', content: { text: '' } },
+    agentMessage: { user: '', content: { text: '' } }
+  });
 
   useEffect(() => {
     if (user) {
@@ -344,165 +348,434 @@ export default function AgentsPage() {
           {selectedAgent && (
             <div className="mt-6">
               <Tabs defaultValue="basic" className="w-full">
-                <TabsList className="grid w-full grid-cols-4">
-                  <TabsTrigger value="basic">Basic Info</TabsTrigger>
-                  <TabsTrigger value="personality">Personality</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-6">
+                  <TabsTrigger value="basic">Basic</TabsTrigger>
+                  <TabsTrigger value="bio">Bio</TabsTrigger>
+                  <TabsTrigger value="lore">Lore</TabsTrigger>
+                  <TabsTrigger value="topics">Topics</TabsTrigger>
                   <TabsTrigger value="style">Style</TabsTrigger>
                   <TabsTrigger value="examples">Examples</TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="basic" className="mt-4">
-                  <Card>
-                    <CardContent className="space-y-4 pt-4">
-                      <div>
-                        <Label htmlFor="system-prompt">System Prompt</Label>
-                        <Textarea
-                          id="system-prompt"
-                          value={agentDetails?.system_prompt || ''}
-                          onChange={(e) => setAgentDetails(prev => prev ? {
-                            ...prev,
-                            system_prompt: e.target.value
-                          } : null)}
-                          placeholder="Enter system prompt"
-                          className="mt-1"
-                        />
-                      </div>
-                      <Button onClick={handleSaveDetails}>Save Changes</Button>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                <TabsContent value="personality" className="mt-4">
-                  <Card>
-                    <CardContent className="space-y-6 pt-4">
-                      <div>
-                        <Label>Bio</Label>
-                        <div className="space-y-2 mt-2">
-                          {agentDetails?.bio.map((item, index) => (
-                            <div key={index} className="flex items-center gap-2">
-                              <span className="flex-1">{item}</span>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setAgentDetails(prev => prev ? {
-                                  ...prev,
-                                  bio: prev.bio.filter((_, i) => i !== index)
-                                } : null)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          ))}
-                          <div className="flex gap-2">
-                            <Input
-                              value={newBioItem}
-                              onChange={(e) => setNewBioItem(e.target.value)}
-                              placeholder="Add new bio item"
-                            />
-                            <Button
-                              onClick={() => {
-                                if (newBioItem.trim()) {
-                                  setAgentDetails(prev => prev ? {
-                                    ...prev,
-                                    bio: [...prev.bio, newBioItem.trim()]
-                                  } : null);
-                                  setNewBioItem('');
-                                }
-                              }}
-                            >
-                              Add
-                            </Button>
-                          </div>
+                <div className="h-[calc(66vh)] mt-4">
+                  <TabsContent value="basic" className="h-full">
+                    <Card className="h-full">
+                      <CardContent className="space-y-4 pt-4 h-full overflow-y-auto">
+                        <div>
+                          <Label htmlFor="system-prompt">System Prompt</Label>
+                          <Textarea
+                            id="system-prompt"
+                            value={agentDetails?.system_prompt || ''}
+                            onChange={(e) => setAgentDetails(prev => prev ? {
+                              ...prev,
+                              system_prompt: e.target.value
+                            } : null)}
+                            placeholder="Enter system prompt"
+                            className="mt-1"
+                          />
                         </div>
-                      </div>
+                        <Button onClick={handleSaveDetails}>Save Changes</Button>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
 
-                      <Button onClick={handleSaveDetails}>Save Changes</Button>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                <TabsContent value="style" className="mt-4">
-                  <Card>
-                    <CardContent className="space-y-6 pt-4">
-                      {['all', 'chat', 'post'].map((category) => (
-                        <div key={category}>
-                          <Label className="capitalize">{category} Style</Label>
+                  <TabsContent value="bio" className="h-full">
+                    <Card className="h-full">
+                      <CardContent className="space-y-6 pt-4 h-full overflow-y-auto">
+                        <div>
+                          <Label>Bio</Label>
                           <div className="space-y-2 mt-2">
-                            {agentDetails?.style[category as keyof typeof agentDetails.style]?.map((item, index) => (
-                              <div key={index} className="flex items-center gap-2">
+                            {agentDetails?.bio.map((item, index) => (
+                              <div key={index} className="flex items-center gap-2 border border-blue-700/80 rounded-lg p-2">
                                 <span className="flex-1">{item}</span>
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => {
-                                    setAgentDetails(prev => {
-                                      if (!prev) return null;
-                                      const newStyle = { ...prev.style };
-                                      newStyle[category as keyof typeof agentDetails.style] = 
-                                        newStyle[category as keyof typeof agentDetails.style].filter((_, i) => i !== index);
-                                      return { ...prev, style: newStyle };
-                                    });
-                                  }}
+                                  onClick={() => setAgentDetails(prev => prev ? {
+                                    ...prev,
+                                    bio: prev.bio.filter((_, i) => i !== index)
+                                  } : null)}
                                 >
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
                               </div>
                             ))}
-                          </div>
-                        </div>
-                      ))}
-                      <Button onClick={handleSaveDetails}>Save Changes</Button>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                <TabsContent value="examples" className="mt-4">
-                  <Card>
-                    <CardContent className="space-y-6 pt-4">
-                      <div>
-                        <Label>Post Examples</Label>
-                        <div className="space-y-2 mt-2">
-                          {agentDetails?.post_examples.map((item, index) => (
-                            <div key={index} className="flex items-center gap-2">
-                              <span className="flex-1">{item}</span>
+                            <div className="flex gap-2">
+                              <Input
+                                value={newBioItem}
+                                onChange={(e) => setNewBioItem(e.target.value)}
+                                placeholder="Add new bio item"
+                              />
                               <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setAgentDetails(prev => prev ? {
-                                  ...prev,
-                                  post_examples: prev.post_examples.filter((_, i) => i !== index)
-                                } : null)}
+                                onClick={() => {
+                                  if (newBioItem.trim()) {
+                                    setAgentDetails(prev => prev ? {
+                                      ...prev,
+                                      bio: [...prev.bio, newBioItem.trim()]
+                                    } : null);
+                                    setNewBioItem('');
+                                  }
+                                }}
                               >
-                                <Trash2 className="h-4 w-4" />
+                                Add
                               </Button>
                             </div>
-                          ))}
-                          <div className="flex gap-2">
-                            <Input
-                              value={newPostExample}
-                              onChange={(e) => setNewPostExample(e.target.value)}
-                              placeholder="Add new post example"
-                            />
-                            <Button
-                              onClick={() => {
-                                if (newPostExample.trim()) {
-                                  setAgentDetails(prev => prev ? {
-                                    ...prev,
-                                    post_examples: [...prev.post_examples, newPostExample.trim()]
-                                  } : null);
-                                  setNewPostExample('');
-                                }
-                              }}
-                            >
-                              Add
-                            </Button>
                           </div>
                         </div>
-                      </div>
-                      <Button onClick={handleSaveDetails}>Save Changes</Button>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
+
+                        <div>
+                          <Label>Adjectives</Label>
+                          <div className="space-y-2 mt-2">
+                            {agentDetails?.adjectives.map((item, index) => (
+                              <div key={index} className="flex items-center gap-2 border border-blue-700/80 rounded-lg p-2">
+                                <span className="flex-1">{item}</span>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => setAgentDetails(prev => prev ? {
+                                    ...prev,
+                                    adjectives: prev.adjectives.filter((_, i) => i !== index)
+                                  } : null)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            ))}
+                            <div className="flex gap-2">
+                              <Input
+                                value={newAdjective}
+                                onChange={(e) => setNewAdjective(e.target.value)}
+                                placeholder="Add new adjective"
+                              />
+                              <Button
+                                onClick={() => {
+                                  if (newAdjective.trim()) {
+                                    setAgentDetails(prev => prev ? {
+                                      ...prev,
+                                      adjectives: [...prev.adjectives, newAdjective.trim()]
+                                    } : null);
+                                    setNewAdjective('');
+                                  }
+                                }}
+                              >
+                                Add
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+
+                        <Button onClick={handleSaveDetails}>Save Changes</Button>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="lore" className="h-full">
+                    <Card className="h-full">
+                      <CardContent className="space-y-6 pt-4 h-full overflow-y-auto">
+                        <div>
+                          <Label>Lore</Label>
+                          <div className="space-y-2 mt-2">
+                            {agentDetails?.lore.map((item, index) => (
+                              <div key={index} className="flex items-center gap-2 border border-blue-700/80 rounded-lg p-2">
+                                <span className="flex-1">{item}</span>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => setAgentDetails(prev => prev ? {
+                                    ...prev,
+                                    lore: prev.lore.filter((_, i) => i !== index)
+                                  } : null)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            ))}
+                            <div className="flex gap-2">
+                              <Input
+                                value={newLoreItem}
+                                onChange={(e) => setNewLoreItem(e.target.value)}
+                                placeholder="Add new lore item"
+                              />
+                              <Button
+                                onClick={() => {
+                                  if (newLoreItem.trim()) {
+                                    setAgentDetails(prev => prev ? {
+                                      ...prev,
+                                      lore: [...prev.lore, newLoreItem.trim()]
+                                    } : null);
+                                    setNewLoreItem('');
+                                  }
+                                }}
+                              >
+                                Add
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                        <Button onClick={handleSaveDetails}>Save Changes</Button>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="topics" className="h-full">
+                    <Card className="h-full">
+                      <CardContent className="space-y-6 pt-4 h-full overflow-y-auto">
+                        <div>
+                          <Label>Topics</Label>
+                          <div className="space-y-2 mt-2">
+                            {agentDetails?.topics.map((item, index) => (
+                              <div key={index} className="flex items-center gap-2 border border-blue-700/80 rounded-lg p-2">
+                                <span className="flex-1">{item}</span>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => setAgentDetails(prev => prev ? {
+                                    ...prev,
+                                    topics: prev.topics.filter((_, i) => i !== index)
+                                  } : null)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            ))}
+                            <div className="flex gap-2">
+                              <Input
+                                value={newTopic}
+                                onChange={(e) => setNewTopic(e.target.value)}
+                                placeholder="Add new topic"
+                              />
+                              <Button
+                                onClick={() => {
+                                  if (newTopic.trim()) {
+                                    setAgentDetails(prev => prev ? {
+                                      ...prev,
+                                      topics: [...prev.topics, newTopic.trim()]
+                                    } : null);
+                                    setNewTopic('');
+                                  }
+                                }}
+                              >
+                                Add
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                        <Button onClick={handleSaveDetails}>Save Changes</Button>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="style" className="h-full">
+                    <Card className="h-full">
+                      <CardContent className="space-y-6 pt-4 h-full overflow-y-auto">
+                        {['all', 'chat', 'post'].map((category) => (
+                          <div key={category}>
+                            <Label className="capitalize">{category} Style</Label>
+                            <div className="space-y-2 mt-2">
+                              {agentDetails?.style[category as keyof typeof agentDetails.style]?.map((item, index) => (
+                                <div key={index} className="flex items-center gap-2 border border-blue-700/80 rounded-lg p-2">
+                                  <span className="flex-1">{item}</span>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                      setAgentDetails(prev => {
+                                        if (!prev) return null;
+                                        const newStyle = { ...prev.style };
+                                        newStyle[category as keyof typeof agentDetails.style] = 
+                                          newStyle[category as keyof typeof agentDetails.style].filter((_, i) => i !== index);
+                                        return { ...prev, style: newStyle };
+                                      });
+                                    }}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              ))}
+                              <div className="flex gap-2">
+                                <Input
+                                  value={newStyleItem.category === category ? newStyleItem.text : ''}
+                                  onChange={(e) => setNewStyleItem({ category, text: e.target.value })}
+                                  placeholder={`Add new ${category} style item`}
+                                />
+                                <Button
+                                  onClick={() => {
+                                    if (newStyleItem.text.trim()) {
+                                      setAgentDetails(prev => {
+                                        if (!prev) return null;
+                                        const newStyle = { ...prev.style };
+                                        newStyle[category as keyof typeof agentDetails.style] = [
+                                          ...newStyle[category as keyof typeof agentDetails.style],
+                                          newStyleItem.text.trim()
+                                        ];
+                                        return { ...prev, style: newStyle };
+                                      });
+                                      setNewStyleItem({ category, text: '' });
+                                    }
+                                  }}
+                                >
+                                  Add
+                              </Button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        <Button onClick={handleSaveDetails}>Save Changes</Button>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="examples" className="h-full">
+                    <Card className="h-full">
+                      <CardContent className="space-y-6 pt-4 h-full overflow-y-auto">
+                        <div>
+                          <Label>Message Examples</Label>
+                          <div className="space-y-4 mt-2">
+                            {agentDetails?.message_examples.map((conversation, index) => (
+                              <div key={index} className="border rounded-lg p-4 space-y-2">
+                                <div className="flex justify-between items-start">
+                                  <div className="space-y-2 flex-1">
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-medium text-blue-600">User:</span>
+                                      <span>{conversation[0]?.content.text}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-medium text-green-600">Agent:</span>
+                                      <span>{conversation[1]?.content.text}</span>
+                                    </div>
+                                  </div>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setAgentDetails(prev => prev ? {
+                                      ...prev,
+                                      message_examples: prev.message_examples.filter((_, i) => i !== index)
+                                    } : null)}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                            ))}
+                            <div className="space-y-4 border rounded-lg p-4">
+                              <div>
+                                <Label>User Message</Label>
+                                <Input
+                                  value={newMessageExample.userMessage.content.text}
+                                  onChange={(e) => setNewMessageExample(prev => ({
+                                    ...prev,
+                                    userMessage: {
+                                      ...prev.userMessage,
+                                      content: { text: e.target.value }
+                                    }
+                                  }))}
+                                  placeholder="Enter user's message"
+                                  className="mt-2"
+                                />
+                              </div>
+                              <div>
+                                <Label>Agent Response</Label>
+                                <div className="flex gap-2 mt-2">
+                                  <Input
+                                    value={newMessageExample.agentMessage.user}
+                                    onChange={(e) => setNewMessageExample(prev => ({
+                                      ...prev,
+                                      agentMessage: {
+                                        ...prev.agentMessage,
+                                        user: e.target.value
+                                      }
+                                    }))}
+                                    placeholder="Agent name"
+                                    className="w-1/3"
+                                  />
+                                  <Input
+                                    value={newMessageExample.agentMessage.content.text}
+                                    onChange={(e) => setNewMessageExample(prev => ({
+                                      ...prev,
+                                      agentMessage: {
+                                        ...prev.agentMessage,
+                                        content: { text: e.target.value }
+                                      }
+                                    }))}
+                                    placeholder="Agent's response"
+                                    className="flex-1"
+                                  />
+                                </div>
+                              </div>
+                              <Button
+                                onClick={() => {
+                                  if (
+                                    newMessageExample.userMessage.content.text.trim() && 
+                                    newMessageExample.agentMessage.user.trim() &&
+                                    newMessageExample.agentMessage.content.text.trim()
+                                  ) {
+                                    setAgentDetails(prev => prev ? {
+                                      ...prev,
+                                      message_examples: [...prev.message_examples, [
+                                        newMessageExample.userMessage,
+                                        newMessageExample.agentMessage
+                                      ]]
+                                    } : null);
+                                    setNewMessageExample({
+                                      userMessage: { user: '{{user1}}', content: { text: '' } },
+                                      agentMessage: { user: '', content: { text: '' } }
+                                    });
+                                  }
+                                }}
+                                className="w-full"
+                              >
+                                Add Conversation Example
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <Label>Post Examples</Label>
+                          <div className="space-y-2 mt-2">
+                            {agentDetails?.post_examples.map((item, index) => (
+                              <div key={index} className="flex items-center gap-2 border border-blue-700/80 rounded-lg p-2">
+                                <span className="flex-1">{item}</span>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => setAgentDetails(prev => prev ? {
+                                    ...prev,
+                                    post_examples: prev.post_examples.filter((_, i) => i !== index)
+                                  } : null)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            ))}
+                            <div className="flex gap-2">
+                              <Input
+                                value={newPostExample}
+                                onChange={(e) => setNewPostExample(e.target.value)}
+                                placeholder="Add new post example"
+                              />
+                              <Button
+                                onClick={() => {
+                                  if (newPostExample.trim()) {
+                                    setAgentDetails(prev => prev ? {
+                                      ...prev,
+                                      post_examples: [...prev.post_examples, newPostExample.trim()]
+                                    } : null);
+                                    setNewPostExample('');
+                                  }
+                                }}
+                              >
+                                Add
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+
+                        <Button onClick={handleSaveDetails}>Save Changes</Button>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                </div>
               </Tabs>
             </div>
           )}

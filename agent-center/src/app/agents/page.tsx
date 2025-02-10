@@ -22,6 +22,7 @@ import { Textarea } from '@/components/ui/textarea';
 import toast from 'react-hot-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface Agent {
   id: string;
@@ -47,6 +48,14 @@ interface AgentDetails {
   post_examples: string[];
 }
 
+interface SocialAccount {
+  id: string;
+  platform: string;
+  account_handle: string;
+  account_email?: string;
+  auth_token?: string;
+}
+
 export default function AgentsPage() {
   const { supabase } = useSupabase();
   const user = useUserStore(state => state.user);
@@ -70,6 +79,14 @@ export default function AgentsPage() {
     userMessage: { user: '{{user1}}', content: { text: '' } },
     agentMessage: { user: '', content: { text: '' } }
   });
+  const [socialAccounts, setSocialAccounts] = useState<SocialAccount[]>([]);
+  const [newSocialAccount, setNewSocialAccount] = useState<SocialAccount>({
+    id: '',
+    platform: 'twitter',
+    account_handle: '',
+    account_email: '',
+    auth_token: ''
+  });
 
   useEffect(() => {
     if (user) {
@@ -80,8 +97,10 @@ export default function AgentsPage() {
   useEffect(() => {
     if (selectedAgent) {
       loadAgentDetails(selectedAgent.id);
+      loadSocialAccounts(selectedAgent.id);
     } else {
       setAgentDetails(null);
+      setSocialAccounts([]);
     }
   }, [selectedAgent]);
 
@@ -144,6 +163,21 @@ export default function AgentsPage() {
     } catch (error) {
       console.error('Error loading agent details:', error);
       toast.error('Failed to load agent details');
+    }
+  };
+
+  const loadSocialAccounts = async (agentId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('agent_social_accounts')
+        .select('*')
+        .eq('agent_id', agentId);
+      
+      if (error) throw error;
+      setSocialAccounts(data || []);
+    } catch (error) {
+      console.error('Error loading social accounts:', error);
+      toast.error('Failed to load social accounts');
     }
   };
 
@@ -240,6 +274,44 @@ export default function AgentsPage() {
     a.click();
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
+  };
+
+  const handleSaveSocialAccount = async () => {
+    if (!selectedAgent || !newSocialAccount.account_handle) return;
+
+    try {
+      const { error } = await supabase
+        .from('agent_social_accounts')
+        .insert({
+          agent_id: selectedAgent.id,
+          platform: newSocialAccount.platform,
+          account_handle: newSocialAccount.account_handle,
+          account_email: newSocialAccount.account_email,
+          auth_token: newSocialAccount.auth_token
+        });
+
+      if (error) throw error;
+      toast.success('Social account added successfully');
+      loadSocialAccounts(selectedAgent.id);
+      setNewSocialAccount({
+        id: '',
+        platform: 'twitter',
+        account_handle: '',
+        account_email: '',
+        auth_token: ''
+      });
+    } catch (error) {
+      console.error('Error adding social account:', error);
+      toast.error('Failed to add social account');
+    }
+  };
+
+  const maskAuthToken = (token: string) => {
+    if (!token) return '';
+    if (token.length <= 8) return '*'.repeat(token.length);
+    const start = token.slice(0, 4);
+    const end = token.slice(-4);
+    return `${start}${'*'.repeat(8)}${end}`;
   };
 
   return (
@@ -370,7 +442,7 @@ export default function AgentsPage() {
                   onClick={handleDownloadAgent}
                   variant="outline"
                   size="sm"
-                  className="flex items-center gap-2 bg-orange-500"
+                  className="flex items-center gap-2 bg-orange-400"
                 >
                   <Download className="h-4 w-4" />
                   Download Agent Json File
@@ -385,19 +457,20 @@ export default function AgentsPage() {
           {selectedAgent && (
             <div className="mt-6">
               <Tabs defaultValue="basic" className="w-full">
-                <TabsList className="grid w-full grid-cols-6">
+                <TabsList className="grid w-full grid-cols-7">
                   <TabsTrigger value="basic">Basic</TabsTrigger>
                   <TabsTrigger value="bio">Bio</TabsTrigger>
                   <TabsTrigger value="lore">Lore</TabsTrigger>
                   <TabsTrigger value="topics">Topics</TabsTrigger>
                   <TabsTrigger value="style">Style</TabsTrigger>
                   <TabsTrigger value="examples">Examples</TabsTrigger>
+                  <TabsTrigger value="social">Social</TabsTrigger>
                 </TabsList>
 
                 <div className="h-[calc(66vh)] mt-4">
                   <TabsContent value="basic" className="h-full">
                     <Card className="h-full">
-                      <CardContent className="space-y-4 pt-4 h-full overflow-y-auto">
+                      <CardContent className="space-y-6 pt-4 h-full overflow-y-auto">
                         <div>
                           <Label htmlFor="system-prompt">System Prompt</Label>
                           <Textarea
@@ -809,6 +882,112 @@ export default function AgentsPage() {
                         </div>
 
                         <Button onClick={handleSaveDetails}>Save Changes</Button>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="social" className="h-full">
+                    <Card className="h-full">
+                      <CardContent className="space-y-6 pt-4 h-full overflow-y-auto">
+                        <div className="space-y-4">
+                          <h3 className="font-medium text-lg">Social Media Accounts</h3>
+                          
+                          <div className="space-y-2">
+                            {socialAccounts.map((account) => (
+                              <div key={account.id} className="flex items-center justify-between p-3 border rounded-lg">
+                                <div className="space-y-1">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-medium capitalize">{account.platform}:</span>
+                                    <span>{account.account_handle}</span>
+                                  </div>
+                                  {account.account_email && (
+                                    <div className="text-sm text-secondary">
+                                      Email: {account.account_email}
+                                    </div>
+                                  )}
+                                  {account.auth_token && (
+                                    <div className="text-sm text-secondary">
+                                      <span className="font-medium">Token:</span>{' '}
+                                      <span className="font-mono">{maskAuthToken(account.auth_token)}</span>
+                                    </div>
+                                  )}
+                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={async () => {
+                                    if (!confirm('Are you sure you want to remove this account?')) return;
+                                    const { error } = await supabase
+                                      .from('agent_social_accounts')
+                                      .delete()
+                                      .eq('id', account.id);
+                                    
+                                    if (error) {
+                                      toast.error('Failed to remove account');
+                                    } else {
+                                      loadSocialAccounts(selectedAgent.id);
+                                      toast.success('Account removed successfully');
+                                    }
+                                  }}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+
+                          <div className="space-y-4 border rounded-lg p-4">
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <Label>Platform</Label>
+                                <Select
+                                  value={newSocialAccount.platform}
+                                  onValueChange={(value) => setNewSocialAccount(prev => ({ ...prev, platform: value }))}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select platform" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="twitter">Twitter</SelectItem>
+                                    <SelectItem value="telegram">Telegram</SelectItem>
+                                    <SelectItem value="discord">Discord</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div>
+                                <Label>Account Handle</Label>
+                                <Input
+                                  value={newSocialAccount.account_handle}
+                                  onChange={(e) => setNewSocialAccount(prev => ({ ...prev, account_handle: e.target.value }))}
+                                  placeholder="@handle"
+                                />
+                              </div>
+                            </div>
+                            <div>
+                              <Label>Account Email (Optional)</Label>
+                              <Input
+                                value={newSocialAccount.account_email || ''}
+                                onChange={(e) => setNewSocialAccount(prev => ({ ...prev, account_email: e.target.value }))}
+                                placeholder="account@example.com"
+                              />
+                            </div>
+                            <div>
+                              <Label>Auth Token</Label>
+                              <Input
+                                type="password"
+                                value={newSocialAccount.auth_token || ''}
+                                onChange={(e) => setNewSocialAccount(prev => ({ ...prev, auth_token: e.target.value }))}
+                                placeholder="Enter auth token or API key"
+                              />
+                            </div>
+                            <Button 
+                              onClick={handleSaveSocialAccount}
+                              className="w-full"
+                            >
+                              Add Social Account
+                            </Button>
+                          </div>
+                        </div>
                       </CardContent>
                     </Card>
                   </TabsContent>

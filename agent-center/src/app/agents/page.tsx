@@ -8,7 +8,7 @@ import { useSupabase } from '@/components/supabase-provider';
 import { useUserStore } from '@/lib/stores/user-store';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Download } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -216,6 +216,32 @@ export default function AgentsPage() {
     }
   };
 
+  const handleDownloadAgent = () => {
+    if (!selectedAgent || !agentDetails) return;
+
+    const exportData = {
+      system: agentDetails.system_prompt,
+      bio: agentDetails.bio,
+      lore: agentDetails.lore,
+      messageExamples: agentDetails.message_examples,
+      postExamples: agentDetails.post_examples,
+      topics: agentDetails.topics,
+      style: agentDetails.style,
+      adjectives: agentDetails.adjectives,
+    };
+
+    // Create blob and download
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${selectedAgent.name.toLowerCase().replace(/\s+/g, '-')}-character.json`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  };
+
   return (
     <div className="min-h-screen p-4 sm:p-6 md:p-8">
       <header className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6 md:mb-8">
@@ -338,7 +364,18 @@ export default function AgentsPage() {
 
           {selectedAgent && (
             <div className="mt-6 p-4 rounded-lg border border-secondary/20">
-              <h3 className="font-medium text-primary mb-2">Agent Description</h3>
+              <div className="flex justify-between items-start mb-2">
+                <h3 className="font-medium text-primary">Agent Description</h3>
+                <Button 
+                  onClick={handleDownloadAgent}
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-2"
+                >
+                  <Download className="h-4 w-4" />
+                  Export Agent
+                </Button>
+              </div>
               <p className="text-secondary">
                 {selectedAgent.description || 'No description available.'}
               </p>

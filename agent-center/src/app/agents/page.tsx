@@ -370,10 +370,10 @@ export default function AgentsPage() {
                   onClick={handleDownloadAgent}
                   variant="outline"
                   size="sm"
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 bg-orange-500"
                 >
                   <Download className="h-4 w-4" />
-                  Export Agent
+                  Download Agent Json File
                 </Button>
               </div>
               <p className="text-secondary">

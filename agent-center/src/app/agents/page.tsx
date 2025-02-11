@@ -8,7 +8,7 @@ import { useSupabase } from '@/components/supabase-provider';
 import { useUserStore } from '@/lib/stores/user-store';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, Download } from 'lucide-react';
+import { Plus, Trash2, Download, Eye } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -29,6 +29,8 @@ interface Agent {
   name: string;
   description: string;
   avatar_url: string | null;
+  supabase_url?: string;
+  supabase_anon_key?: string;
 }
 
 interface AgentDetails {
@@ -235,14 +237,27 @@ export default function AgentsPage() {
     if (!selectedAgent || !agentDetails) return;
 
     try {
-      const { error } = await supabase
+      // Update agent details
+      const { error: detailsError } = await supabase
         .from('agent_details')
         .upsert({
           agent_id: selectedAgent.id,
           ...agentDetails
         });
 
-      if (error) throw error;
+      if (detailsError) throw detailsError;
+
+      // Update agent's Supabase configuration
+      const { error: agentError } = await supabase
+        .from('agents')
+        .update({
+          supabase_url: selectedAgent.supabase_url,
+          supabase_anon_key: selectedAgent.supabase_anon_key
+        })
+        .eq('id', selectedAgent.id);
+
+      if (agentError) throw agentError;
+
       toast.success('Agent details saved successfully');
     } catch (error) {
       console.error('Error saving agent details:', error);
@@ -408,7 +423,10 @@ export default function AgentsPage() {
                             {agent.name.slice(0, 2).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
-                        <span className="font-medium text-primary">{agent.name}</span>
+                        <div className="flex flex-col">
+                          <span className="font-medium text-primary">{agent.name}</span>
+                          <span className="text-xs text-secondary font-mono">ID: {agent.id}</span>
+                        </div>
                       </div>
                       <Button
                         variant="ghost"
@@ -484,6 +502,63 @@ export default function AgentsPage() {
                             className="mt-1"
                           />
                         </div>
+
+                        <div className="space-y-4 border rounded-lg p-4">
+                          <h3 className="font-medium">Supabase Configuration</h3>
+                          
+                          <div>
+                            <Label htmlFor="supabase-url">Supabase URL</Label>
+                            <Input
+                              id="supabase-url"
+                              value={selectedAgent?.supabase_url || ''}
+                              onChange={(e) => {
+                                setSelectedAgent(prev => prev ? {
+                                  ...prev,
+                                  supabase_url: e.target.value
+                                } : null);
+                              }}
+                              placeholder="https://your-project.supabase.co"
+                              className="mt-1 font-mono text-sm"
+                            />
+                          </div>
+
+                          <div>
+                            <Label htmlFor="supabase-key">Supabase Anon Key</Label>
+                            <div className="relative">
+                              <Input
+                                id="supabase-key"
+                                type="password"
+                                value={selectedAgent?.supabase_anon_key || ''}
+                                onChange={(e) => {
+                                  setSelectedAgent(prev => prev ? {
+                                    ...prev,
+                                    supabase_anon_key: e.target.value
+                                  } : null);
+                                }}
+                                placeholder="your-anon-key"
+                                className="mt-1 font-mono text-sm pr-10"
+                              />
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                                onClick={() => {
+                                  const input = document.getElementById('supabase-key') as HTMLInputElement;
+                                  if (input) {
+                                    input.type = input.type === 'password' ? 'text' : 'password';
+                                  }
+                                }}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              Your project&apos;s anonymous key from Supabase settings
+                            </p>
+                          </div>
+                        </div>
+
                         <Button onClick={handleSaveDetails}>Save Changes</Button>
                       </CardContent>
                     </Card>
